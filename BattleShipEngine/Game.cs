@@ -40,6 +40,12 @@ public sealed class Game
                 //Player hit a boat
                 board[move.X, move.Y] = BoardTile.DamagedBoat;
                 strategy.RespondHit();
+
+                //Check if the boat was sunk (all tiles are hit)
+                if (false) // Todo: implement
+                {
+                    strategy.RespondSunk();
+                }
             }
             else
             {
@@ -62,12 +68,14 @@ public sealed class Game
         }
 
         //Validate that the board is correct and throw if not
-        if (!ValidateBoard(board, new[] { 4, 3, 2, 1 }))
-            throw new Exception("The board is not valid!"); //Feel free to change this line.
+        if (!ValidateBoard(board, new[] { 4, 3, 2, 1 })) // What does this array mean?
+            throw new Exception("The board is not valid!");
 
         return board;
     }
-    
+
+#region Board Validation
+
     /// <summary>
     /// Checks whether is a board valid (depending on the rules) or not.
     /// </summary>
@@ -187,6 +195,8 @@ public sealed class Game
         // Everything was OK, this is the end of the ship.
         return length;
     }
+
+#endregion
 
     private static bool IsGameOver(BoardTile[,] board)
     {

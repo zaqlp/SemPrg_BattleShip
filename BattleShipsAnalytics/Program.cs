@@ -1,11 +1,11 @@
-﻿using System.Runtime.CompilerServices;
-using BattleShipEngine;
+﻿using BattleShipEngine;
 using BattleShipStrategies.Default;
 
 
 var participants = new List<Participant>()
 {
-    new("Default", new DefaultBoardCreationStrategy(), new DefaultGameStrategy())
+    new("Default1", new DefaultBoardCreationStrategy(), new DefaultGameStrategy()),
+    new("Default2", new DefaultBoardCreationStrategy(), new DefaultGameStrategy())
 };
 
 foreach (var participant in participants)

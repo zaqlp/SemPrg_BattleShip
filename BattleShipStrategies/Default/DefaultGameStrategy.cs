@@ -13,6 +13,10 @@ public class DefaultGameStrategy : IGameStrategy
     {
     }
 
+    public void RespondSunk()
+    {
+    }
+
     public void RespondMiss()
     {
     }

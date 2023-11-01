@@ -14,7 +14,13 @@ public interface IGameStrategy
     void RespondHit();
 
     /// <summary>
+    /// If the result of <see cref="GetMove"/> hit a boat on the board and the boat was sunk (all tiles were hit), the game engine will call this method <b>AFTER <see cref="RespondHit"/></b>. Both are called...
+    /// </summary>
+    void RespondSunk();
+    
+    /// <summary>
     /// This is called by the game engine when the result of <see cref="GetMove"/> missed a boat on the board.
     /// </summary>
     void RespondMiss();
+
 }
