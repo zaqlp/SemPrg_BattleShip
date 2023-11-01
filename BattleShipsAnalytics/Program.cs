@@ -10,7 +10,8 @@ var participants = new List<Participant>()
 
 foreach (var participant in participants)
 {
-    var game = new Game(participant.BoardCreationStrategy);
+    var game = new Game(participant.BoardCreationStrategy, new GameSetting(
+        10, 10, new [] {4, 3, 2, 1}));
 
     //Calculate how others did against this board
     var competitorsScores = new Dictionary<Participant, int>(); // Key: Participant, Value: How many moves it took to sink all boats

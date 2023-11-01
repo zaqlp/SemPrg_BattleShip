@@ -13,10 +13,10 @@ public sealed class Game
     /// <summary>
     /// Creates a new game with the given positions. They are used only as a template and one Game can simulate multiple games.
     /// </summary>
-    public Game(IBoardCreationStrategy boardCreationStrategy)
+    public Game(IBoardCreationStrategy boardCreationStrategy, GameSetting setting)
     {
-        var boatPositions = boardCreationStrategy.GetBoatPositions();
-        this._boardTemplate = GenerateBoardFromBoats(boatPositions);
+        var boatPositions = boardCreationStrategy.GetBoatPositions(setting);
+        this._boardTemplate = GenerateBoardFromBoats(boatPositions, setting);
     }
 
     /// <summary>
@@ -59,7 +59,7 @@ public sealed class Game
         return ammOfMoves;
     }
 
-    private static BoardTile[,] GenerateBoardFromBoats(Int2[] boatPositions)
+    private static BoardTile[,] GenerateBoardFromBoats(Int2[] boatPositions, GameSetting setting)
     {
         var board = new BoardTile[10, 10];
         foreach (var boatPosition in boatPositions)
@@ -68,7 +68,7 @@ public sealed class Game
         }
 
         //Validate that the board is correct and throw if not
-        if (!ValidateBoard(board, new[] { 4, 3, 2, 1 })) // What does this array mean?
+        if (!ValidateBoard(board, setting))
             throw new Exception("The board is not valid!");
 
         return board;
@@ -79,8 +79,9 @@ public sealed class Game
     /// <summary>
     /// Checks whether is a board valid (depending on the rules) or not.
     /// </summary>
-    private static bool ValidateBoard(BoardTile[,] board, int[] ships)
+    private static bool ValidateBoard(BoardTile[,] board, GameSetting setting)
     {
+        int[] ships = setting.BoatCount;
         int[] shipsFound = new int[ships.Length];
         for (int i = 0; i < ships.Length; i++)
             shipsFound[i] = 0;

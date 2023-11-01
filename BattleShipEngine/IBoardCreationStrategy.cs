@@ -2,5 +2,5 @@
 
 public interface IBoardCreationStrategy
 {
-    public Int2[] GetBoatPositions();
+    public Int2[] GetBoatPositions(GameSetting setting);
 }
