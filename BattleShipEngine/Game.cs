@@ -25,6 +25,7 @@ public sealed class Game
     /// <returns> How many moves the strategy took to sink all boats. </returns>
     public int SimulateGame(IGameStrategy strategy)
     {
+        strategy.Start();
         //Copy the board, so this can be reused
         var board = (BoardTile[,])this._boardTemplate.Clone();
 

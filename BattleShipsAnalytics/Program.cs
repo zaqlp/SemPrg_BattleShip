@@ -1,11 +1,13 @@
 ﻿using BattleShipEngine;
 using BattleShipStrategies.Default;
+using BattleShipStrategies.Slavek;
 
 
 var participants = new List<Participant>()
 {
     new("Default1", new DefaultBoardCreationStrategy(), new DefaultGameStrategy()),
-    new("Default2", new DefaultBoardCreationStrategy(), new DefaultGameStrategy())
+    new("Default2", new DefaultBoardCreationStrategy(), new DefaultGameStrategy()),
+    new("RandomBySlavek", new DefaultBoardCreationStrategy(), new SmartRandomStrategy())
 };
 
 foreach (var participant in participants)

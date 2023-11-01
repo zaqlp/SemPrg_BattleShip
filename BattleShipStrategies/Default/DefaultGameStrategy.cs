@@ -20,4 +20,8 @@ public class DefaultGameStrategy : IGameStrategy
     public void RespondMiss()
     {
     }
+
+    public void Start()
+    {
+    }
 }
