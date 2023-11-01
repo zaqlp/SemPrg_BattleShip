@@ -92,16 +92,18 @@ public sealed class Game
                 if (board[i,j] == BoardTile.Boat)
                 {
                     int boatLength = GetBoatLength(board, new Int2(i, j));
+                    if (boatLength > ships.Length)
+                        return false;
                     if (boatLength == -1)
                         return false;
-                    ships[boatLength-1] ++; // There aren't any boats with length 0.
+                    shipsFound[boatLength-1] ++; // There aren't any boats with length 0.
                 }
             }
         }
         
         for (int i = 0; i < ships.Length; i++)
         {
-            if (shipsFound[i] != ships[i] * i) // Longer ships are counted several times.
+            if (shipsFound[i] != ships[i] * (i + 1)) // Longer ships are counted several times.
                 return false;
         }
         
