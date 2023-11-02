@@ -10,13 +10,17 @@ var participants = new List<Participant>()
     new("RandomBySlavek", new DefaultBoardCreationStrategy(), new SmartRandomStrategy())
 };
 
+var competitorsScores = new Dictionary<Participant, int>(); // Key: Participant, Value: How many moves it took to sink all boats
+foreach (var participant in participants)
+    competitorsScores.Add(participant, 0);
 foreach (var participant in participants)
 {
     var game = new Game(participant.BoardCreationStrategy, new GameSetting(
         10, 10, new [] {4, 3, 2, 1}));
+    
+    Console.WriteLine($"The Board of {participant.Name} was cleared by ");
 
     //Calculate how others did against this board
-    var competitorsScores = new Dictionary<Participant, int>(); // Key: Participant, Value: How many moves it took to sink all boats
     foreach (var competitor in participants)
     {
         if (competitor == participant)
@@ -25,13 +29,16 @@ foreach (var participant in participants)
         //Simulate game on this board
         var ammOfMoves = game.SimulateGame(competitor.GameStrategy);
 
-        competitorsScores.Add(competitor, ammOfMoves);
+        competitorsScores[competitor] += ammOfMoves;
+        
+        //Some logging for this board
+        Console.WriteLine($"\t-{competitor.Name} in {ammOfMoves} moves");
     }
-
-    //Some logging for this board
-    Console.WriteLine($"The Board of {participant.Name} was cleared by ");
-    foreach (var competitor in competitorsScores)
-    {
-        Console.WriteLine($"\t-{competitor.Key.Name} in {competitor.Value} moves");
-    }
+}
+//Final results
+Console.WriteLine("Total amount of moves needed to solve all the opponents' boards:");
+foreach (var participant in
+         competitorsScores.OrderBy(x => x.Value))
+{
+    Console.WriteLine($"\t-{participant.Key.Name}: {participant.Value} moves");
 }
