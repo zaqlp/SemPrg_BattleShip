@@ -26,5 +26,5 @@ public interface IGameStrategy
     /// <summary>
     /// This is called by the game engine when a new game starts.
     /// </summary>
-    void Start();
+    void Start(GameSetting setting);
 }
