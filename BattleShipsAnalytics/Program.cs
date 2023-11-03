@@ -5,18 +5,21 @@ using BattleShipStrategies.Slavek;
 
 var participants = new List<Participant>()
 {
-    new("Default1", new DefaultBoardCreationStrategy(), new DefaultGameStrategy()),
-    new("Default2", new DefaultBoardCreationStrategy(), new DefaultGameStrategy()),
+    new("Default", new DefaultBoardCreationStrategy(), new DefaultGameStrategy()),
     new("RandomBySlavek", new DefaultBoardCreationStrategy(), new SmartRandomStrategy())
 };
 
+//Setup scores
 var competitorsScores = new Dictionary<Participant, int>(); // Key: Participant, Value: How many moves it took to sink all boats
 foreach (var participant in participants)
     competitorsScores.Add(participant, 0);
+
+//Play games
+var settings = GameSetting.Default;
+
 foreach (var participant in participants)
 {
-    var game = new Game(participant.BoardCreationStrategy, new GameSetting(
-        10, 10, new [] {4, 3, 2, 1}));
+    var game = new Game(participant.BoardCreationStrategy, settings);
     
     Console.WriteLine($"The Board of {participant.Name} was cleared by ");
 
@@ -35,6 +38,7 @@ foreach (var participant in participants)
         Console.WriteLine($"\t-{competitor.Name} in {ammOfMoves} moves");
     }
 }
+
 //Final results
 Console.WriteLine("Total amount of moves needed to solve all the opponents' boards:");
 foreach (var participant in

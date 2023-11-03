@@ -3,8 +3,6 @@
 /// <summary>
 /// The game of battleships
 /// A Game exists for a board and multiple strategies can simulate it.
-/// The rules for the board can be found here: https://www.codewars.com/kata/52bb6539a4cf1b12d90005b7
-/// 
 /// </summary>
 public sealed class Game
 {

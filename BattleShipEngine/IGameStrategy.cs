@@ -24,7 +24,7 @@ public interface IGameStrategy
     void RespondMiss();
     
     /// <summary>
-    /// This is called by the game engine when a new game starts.
+    /// This is called by the game engine when a new game starts. <b>If your strategy has any inner state, this is the place to reset it.</b> 
     /// </summary>
     void Start(GameSetting setting);
 }
