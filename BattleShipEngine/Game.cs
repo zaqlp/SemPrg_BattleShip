@@ -43,7 +43,7 @@ public sealed class Game
                 strategy.RespondHit();
 
                 //Check if the boat was sunk (all tiles are hit)
-                if (false) // Todo: implement
+                if (BoatIsDead(board, move, Direction.All, _setting))
                 {
                     strategy.RespondSunk();
                 }
@@ -58,6 +58,32 @@ public sealed class Game
         }
 
         return ammOfMoves;
+    }
+
+    private static bool BoatIsDead(BoardTile[,] board, Int2 position,
+        Direction direction, GameSetting setting)
+    {
+        if (direction == Direction.All)
+        {
+            bool result = true;
+            for (int i = 0; i < 4; i++)
+                result = result && BoatIsDead(board, position, (Direction) i, setting);
+            return result;
+        }
+        if (board[position.X, position.Y] == BoardTile.Boat)
+            return false;
+        if (board[position.X, position.Y] == BoardTile.Water)
+            return true;
+        if ((direction == Direction.Left && position.X != 0 && !BoatIsDead(
+                board, position with {X = position.X - 1}, direction, setting)) ||
+            (direction == Direction.Up && position.Y != 0 && !BoatIsDead(
+                board, position with {Y = position.Y - 1}, direction, setting)) ||
+            (direction == Direction.Right && position.X != setting.Width - 1 && !BoatIsDead(
+                board, position with {X = position.X + 1}, direction, setting)) ||
+            (direction == Direction.Down && position.Y != setting.Height - 1 && !BoatIsDead(
+                board, position with {Y = position.Y + 1}, direction, setting)))
+            return false;
+        return true;
     }
 
     private static BoardTile[,] GenerateBoardFromBoats(Int2[] boatPositions, GameSetting setting)
