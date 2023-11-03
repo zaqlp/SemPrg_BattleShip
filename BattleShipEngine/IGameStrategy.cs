@@ -22,5 +22,9 @@ public interface IGameStrategy
     /// This is called by the game engine when the result of <see cref="GetMove"/> missed a boat on the board.
     /// </summary>
     void RespondMiss();
-
+    
+    /// <summary>
+    /// This is called by the game engine when a new game starts.
+    /// </summary>
+    void Start(GameSetting setting);
 }
