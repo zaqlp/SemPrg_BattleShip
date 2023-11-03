@@ -6,7 +6,8 @@ using BattleShipStrategies.Slavek;
 var participants = new List<Participant>()
 {
     new("Default", new DefaultBoardCreationStrategy(), new DefaultGameStrategy()),
-    new("RandomBySlavek", new DefaultBoardCreationStrategy(), new SmartRandomStrategy())
+    new("SmartRandom", new DefaultBoardCreationStrategy(), new SmartRandomStrategy()),
+    new("Interactive", new InteractiveBoardCreationStrategy(), new InteractiveGameStrategy())
 };
 
 //Setup scores
