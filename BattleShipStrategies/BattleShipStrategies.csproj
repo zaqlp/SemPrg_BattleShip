@@ -10,8 +10,4 @@
     <ProjectReference Include="..\BattleShipEngine\BattleShipEngine.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Default\" />
-  </ItemGroup>
-
 </Project>
