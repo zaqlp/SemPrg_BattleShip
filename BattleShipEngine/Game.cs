@@ -108,6 +108,9 @@ public sealed class Game
     /// </summary>
     private static bool ValidateBoard(BoardTile[,] board, GameSetting setting)
     {
+        if (board.GetLength(0) != setting.Width ||
+            board.GetLength(1) != setting.Height)
+            return false;
         int[] ships = setting.BoatCount;
         int[] shipsFound = new int[ships.Length];
         for (int i = 0; i < ships.Length; i++)

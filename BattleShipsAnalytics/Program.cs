@@ -7,7 +7,7 @@ var participants = new List<Participant>()
 {
     new("Default", new DefaultBoardCreationStrategy(), new DefaultGameStrategy()),
     new("SmartRandom", new DefaultBoardCreationStrategy(), new SmartRandomStrategy()),
-    new("Interactive", new InteractiveBoardCreationStrategy(), new InteractiveGameStrategy())
+    //new("Interactive", new InteractiveBoardCreationStrategy(), new InteractiveGameStrategy())
 };
 
 //Setup scores
@@ -20,7 +20,17 @@ var settings = GameSetting.Default;
 
 foreach (var participant in participants)
 {
-    var game = new Game(participant.BoardCreationStrategy, settings);
+    Game game;
+    try
+    {
+        game = new Game(participant.BoardCreationStrategy, settings);
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine(e);
+        Console.WriteLine($"The {participant.Name}'s board was not valid. Skipping.");
+        continue;
+    }
     
     Console.WriteLine($"The Board of {participant.Name} was cleared by ");
 
