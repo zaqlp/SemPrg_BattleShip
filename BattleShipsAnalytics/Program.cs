@@ -1,11 +1,13 @@
 ﻿using BattleShipEngine;
 using BattleShipStrategies.Default;
+using BattleShipStrategies.MartinF;
 using BattleShipStrategies.Slavek;
 
 
 var participants = new List<Participant>()
 {
-    new("Default", new DefaultBoardCreationStrategy(), new DefaultGameStrategy()),
+    //new("Default", new DefaultBoardCreationStrategy(), new DefaultGameStrategy()),
+    new("MartinStrategy", new DefaultBoardCreationStrategy(), new MartinStrategy()),
     new("SmartRandom", new SmartRandomBoardCreationStrategy(), new SmartRandomStrategy()),
     new("Slavek", new SmartRandomBoardCreationStrategy(), new DeathCrossStrategy()),
     //new("Interactive", new InteractiveBoardCreationStrategy(), new InteractiveGameStrategy())
