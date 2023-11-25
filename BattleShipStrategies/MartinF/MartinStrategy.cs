@@ -22,14 +22,8 @@ public class MartinStrategy : IGameStrategy
         this.settings = setting;
         hits = new(settings.Width * settings.Height);
         possibleSpots = new(settings.Width * settings.Height);
-        //Populate possible spots with all tiles
-        for (int x = 0; x < settings.Width; x++)
-        {
-            for (int y = 0; y < settings.Height; y++)
-            {
-                possibleSpots.Add(new(x, y));
-            }
-        }
+        PopulatePossibleSpots();
+
         lastMove = new(-1, -1);
 
         lastBoatHitPoint = null;
@@ -40,18 +34,86 @@ public class MartinStrategy : IGameStrategy
         sunkSpots = new();
     }
 
+    private void PopulatePossibleSpots()
+    {
+        //Add the spots "diagonally"
+        //Every other tile, and then every other tile to fill the gaps
+
+        //Add first diagonal set
+        for (int y = 0; y < settings.Height; y += 1)
+        {
+            for (int x = y % 2; x < settings.Width; x += 2)
+            {
+                possibleSpots.Add(new Int2(x, y));
+                //Console.SetCursorPosition(x * 4, y * 2);
+                //Console.Write(i);
+                //i++;
+            }
+        }
+
+        //Add second diagonal set
+        for (int y = 0; y < settings.Height; y += 1)
+        {
+            for (int x = (y + 1) % 2; x < settings.Width; x += 2)
+            {
+                possibleSpots.Add(new Int2(x, y));
+                //Console.SetCursorPosition(x * 4, y * 2);
+                //Console.Write(i);
+                //i++;
+            }
+        }
+
+
+        //Had worse results..
+        //Add the spots "diagonally"
+        /* Like this:
+         * 0 3 5
+         * 6 1 4
+         * 9 7 2
+        */
+
+        //var i = 0;
+
+        //for (int d = 0; d < settings.Width; d++)
+        //{
+        //    possibleSpots.Add(new(d, d));
+        //    //Console.SetCursorPosition(d * 4, d * 2);
+        //    //Console.Write(i);
+        //    //i++;
+        //}
+
+        //// Diagonals above and below the middle diagonal
+        //for (int d = 1; d < settings.Width; d++)
+        //{
+        //    // Diagonal above the middle diagonal
+        //    for (int y = d, x = 0; y < settings.Height; y++, x++)
+        //    {
+        //        possibleSpots.Add(new(x, y));
+        //        //Console.SetCursorPosition(x * 4, y * 2);
+        //        //Console.Write(i);
+        //        //i++;
+        //    }
+
+        //    // Diagonal below the middle diagonal
+        //    for (int y = 0, x = d; x < settings.Width; y++, x++)
+        //    {
+        //        possibleSpots.Add(new(x, y));
+        //        //Console.SetCursorPosition(x * 4, y * 2);
+        //        //Console.Write(i);
+        //        //i++;
+        //    }
+        //}
+    }
+
     public Int2 GetMove()
     {
-        //DrawStrategyMap();
-
         Int2 move;
 
         if (lastMove.X == -1)
         {
-            //No move was done yet so fire at random
-            move = new Int2(
-                Random.Shared.Next(0, settings.Width),
-                Random.Shared.Next(0, settings.Height));
+            //No move was done yet so go with the first possible spot
+            
+            move = possibleSpots.First();
             goto commitMove;
         }
 
