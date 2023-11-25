@@ -23,10 +23,7 @@ internal class MultiGameTournament : ITournament
 
         foreach (var participant in _participants)
         {
-            //Assume boards are valid (lol) (it's faster)
-            var game = new Game(participant.BoardCreationStrategy, settings);
-
-            Console.WriteLine($"Board of {participant.Name}:");
+            Console.WriteLine($"The {_gamesPerBoard} boards of {participant.Name}:");
 
             //Calculate how others did against this board
             foreach (var competitor in _participants)
@@ -38,6 +35,9 @@ internal class MultiGameTournament : ITournament
                 //Simulate games on this board
                 for (int i = 0; i < _gamesPerBoard; i++)
                 {
+                    //Assume boards are valid (lol) (it's faster)
+                    var game = new Game(participant.BoardCreationStrategy, settings);
+
                     var ammOfMoves = game.SimulateGame(competitor.GameStrategy);
                     competitorsScores[competitor] += ammOfMoves;
                     currentCompetitorTotalMoves += ammOfMoves;
