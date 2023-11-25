@@ -6,8 +6,7 @@ using BattleShipStrategies.Slavek;
 
 var participants = new List<Participant>()
 {
-    //new("Default", new DefaultBoardCreationStrategy(), new DefaultGameStrategy()),
-    new("MartinStrategy", new DefaultBoardCreationStrategy(), new MartinStrategy()),
+    new("MartinStrategy", new SmartRandomBoardCreationStrategy(), new MartinStrategy()),
     new("SmartRandom", new SmartRandomBoardCreationStrategy(), new SmartRandomStrategy()),
     new("Slavek", new SmartRandomBoardCreationStrategy(), new DeathCrossStrategy()),
     //new("Interactive", new InteractiveBoardCreationStrategy(), new InteractiveGameStrategy())
