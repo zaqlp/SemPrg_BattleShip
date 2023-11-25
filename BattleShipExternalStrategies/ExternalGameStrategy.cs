@@ -5,6 +5,15 @@ using BattleShipEngine;
 
 namespace BattleShipExternalStrategies;
 
+/*
+ * Sends data throw a socket as plain text.
+ * Begins with a message "New game starts" and the game settings.
+ * Then asks for a move and accepts answer as two integers split by a comma.
+ * Uses <EOF> at the end of every message (sent and accepted).
+ * Between the player's moves sends the result of his shot as "MISS."/"HIT!"/"HIT!"+"SUNK!!!".
+ * Closes the connection after the message: "Turn off.".
+ */
+
 public class ExternalGameStrategy : IGameStrategy
 {
     private Socket _socket;
@@ -50,18 +59,19 @@ public class ExternalGameStrategy : IGameStrategy
                     if (input.IndexOf("<EOF>") > -1)
                         break;
                 }
-                
+
+                input = input.Replace("<EOF>", "");
                 var parts = input.Split(',');
 
                 if (!int.TryParse(parts[0], out var row))
                 {
-                    _client.Send("Invalid X"u8.ToArray());
+                    _client.Send("Invalid X<EOF>"u8.ToArray());
                     continue;
                 }
 
                 if (!int.TryParse(parts[1], out var column))
                 {
-                    _client.Send("Invalid Y"u8.ToArray());
+                    _client.Send("Invalid Y<EOF>"u8.ToArray());
                     continue;
                 }
 
@@ -124,15 +134,17 @@ public class ExternalGameStrategy : IGameStrategy
         }
         try
         {
-            _client.Send(Encoding.ASCII.GetBytes(
-                "Width: " + setting.Width.ToString() + '\n'));
-            _client.Send(Encoding.ASCII.GetBytes(
-                "Height: " + setting.Height.ToString() + '\n'));
-            _client.Send(Encoding.ASCII.GetBytes("Boats: "));
+            string s = "New game starts.\n";
+            s += "Width: " + setting.Width.ToString() + '\n';
+            s += "Height: " + setting.Height.ToString() + '\n';
+            s += "Boats: ";
             for (int i = 0; i < setting.BoatCount.Length; i++)
-                _client.Send(Encoding.ASCII.GetBytes(
-                    (i + 1).ToString() + ": " + setting.BoatCount[i].ToString() + ' '));
-            _client.Send("<EOF>"u8.ToArray());
+            {
+                s += (i + 1).ToString() + ": " + setting.BoatCount[i].ToString();
+                if (i < setting.BoatCount.Length - 1)
+                    s += ", ";
+            }
+            _client.Send(Encoding.ASCII.GetBytes(s + "<EOF>"));
         }
         catch (IOException e)
         {

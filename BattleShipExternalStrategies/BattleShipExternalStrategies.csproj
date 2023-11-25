@@ -10,8 +10,4 @@
       <ProjectReference Include="..\BattleShipEngine\BattleShipEngine.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Compile Remove="Server.cs" />
-    </ItemGroup>
-
 </Project>

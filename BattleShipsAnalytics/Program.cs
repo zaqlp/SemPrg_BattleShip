@@ -11,7 +11,7 @@ var participants = new List<Participant>()
     new("MartinStrategy", new DefaultBoardCreationStrategy(), new MartinStrategy()),
     new("SmartRandom", new SmartRandomBoardCreationStrategy(), new SmartRandomStrategy()),
     new("Slavek", new SmartRandomBoardCreationStrategy(), new DeathCrossStrategy()),
-    //new("External", new DefaultBoardCreationStrategy(), new ExternalGameStrategy(65432)),
+    new("External", new ExternalBoardCreationStrategy(65431), new ExternalGameStrategy(65432)),
     //new("Interactive", new InteractiveBoardCreationStrategy(), new InteractiveGameStrategy())
 };
 
@@ -66,6 +66,12 @@ foreach (var participant in
 foreach (Participant participant in participants)
 {
     if (participant.GameStrategy is ExternalGameStrategy)
-        participant.GameStrategy.Start(new GameSetting(0, 0, new int[] {}));
+        participant.GameStrategy.Start(new GameSetting(
+            0, 0, new int[] {}));
+    
+    if (participant.BoardCreationStrategy is ExternalBoardCreationStrategy)
+        participant.BoardCreationStrategy.GetBoatPositions(
+            new GameSetting(0, 0, new int[] {}));
+    
             // Start empty = Close socket
 }

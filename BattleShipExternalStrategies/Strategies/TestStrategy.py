@@ -16,7 +16,7 @@ while True:
         break
     if data.find("move") > -1:
         print(str(i) + "," + str(j))
-        s.sendall(bytes(str(i) + "," + str(j) + ",<EOF>", "UTF-8"))
+        s.sendall(bytes(str(i) + "," + str(j) + "<EOF>", "UTF-8"))
         if i == 9:
             if j == 9:
                 j = 0
