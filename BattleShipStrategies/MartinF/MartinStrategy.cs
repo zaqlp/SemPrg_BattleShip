@@ -66,14 +66,28 @@ public class MartinStrategy : IGameStrategy
             switch (lastHitResult)
             {
                 case HitResult.Hit:
+                    //We hit the boat again, so continue in that direction
+                    //But if it leads us out of bounds, we need to turn around
+                    
                     hitSpots.Add(lastMove);
 
-                    //We hit the boat again, so continue in that direction
                     lastBoatHitPoint = lastMove;
                     currentBoat.Add(lastMove);
                     
-                    move = lastBoatHitPoint.Value + boatDirection!.Value;
-                    goto commitMove;
+                    var nextPos = lastMove + boatDirection!.Value;
+                    if (possibleSpots.Contains(nextPos))
+                    {
+                        move = nextPos;
+                        goto commitMove;
+                    }
+                    else //Out of bounds
+                    {
+                        //We're out of bounds, so we need to turn around from the first hit point
+                        boatDirection = new Int2(-boatDirection!.Value.X, -boatDirection.Value.Y);
+
+                        move = currentBoat[0] + boatDirection!.Value;
+                        goto commitMove;
+                    }
                     break;
                 case HitResult.Sunk:
                     //We sunk the boat, remove it's outline from the possible spots
@@ -99,13 +113,14 @@ public class MartinStrategy : IGameStrategy
                         //Return to the first hit point and shoot in the opposite direction
                         boatDirection = new Int2(-boatDirection!.Value.X, -boatDirection.Value.Y);
 
+
                         move = currentBoat[0] + boatDirection!.Value;
                         goto commitMove;
                     }
                     else //if (currentBoat.Count == 1)
                     {
                         //Rotate the direction 90 degrees counterclockwise
-                        boatDirection = Extensions.Rotate90DegreesCounterclockwise(boatDirection!.Value);
+                        boatDirection = DirectionRotatedAndPossible(boatDirection!.Value, lastBoatHitPoint.Value);
 
                         //Shoot from last hit point in the new direction
                         move = lastBoatHitPoint.Value + boatDirection.Value;
@@ -141,28 +156,8 @@ public class MartinStrategy : IGameStrategy
 
             //Assume boat direction
             //If there is a wall to the right, go down instead, etc.
-            boatDirection = new Int2(1, 0); //Start with right
-            while (true)
-            {
-                var nextMove = lastMove + boatDirection.Value;
-                if (!possibleSpots.Contains(nextMove))
-                {
-                    boatDirection = Extensions.Rotate90DegreesCounterclockwise(boatDirection.Value);
-
-                    if (boatDirection.Value == new Int2(1, 0)) //We went full circle
-                    {
-                        //This shouldn't happen, because we should always have possible spots around
-                        //Throw instead of crashing with an infinite while...
-                        throw new Exception("Went full circle when assuming boat direction");
-                    }
-                    continue;
-                }
-                else //It is a possible spot
-                {
-                    break;
-                }
-            }
-
+            boatDirection = DirectionRotatedAndPossible(new Int2(1, 0), lastMove); //Start with right
+            
             move = lastMove + boatDirection.Value;
             goto commitMove;
         }
@@ -180,6 +175,31 @@ public class MartinStrategy : IGameStrategy
         possibleSpots.Remove(move);
         lastMove = move;
         return move;
+    }
+    private Int2 DirectionRotatedAndPossible(Int2 startDirection, Int2 fromPosition)
+    {
+        var direction = startDirection;
+        while (true)
+        {
+            var nextMove = fromPosition + direction;
+            if (!possibleSpots.Contains(nextMove))
+            {
+                direction = Extensions.Rotate90DegreesCounterclockwise(direction);
+
+                if (direction == startDirection) //We went full circle
+                {
+                    //This shouldn't happen, because we should always have possible spots around
+                    //Throw instead of crashing with an infinite while...
+                    throw new Exception("Went full circle when assuming boat direction");
+                }
+                continue;
+            }
+
+            //It is a possible spot
+            break;
+        }
+
+        return direction;
     }
 
     public void RespondHit()
