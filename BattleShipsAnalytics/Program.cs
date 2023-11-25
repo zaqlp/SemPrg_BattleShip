@@ -1,4 +1,5 @@
 ﻿using BattleShipEngine;
+using BattleShipExternalStrategies;
 using BattleShipStrategies.Default;
 using BattleShipStrategies.MartinF;
 using BattleShipStrategies.Slavek;
@@ -10,6 +11,7 @@ var participants = new List<Participant>()
     new("MartinStrategy", new DefaultBoardCreationStrategy(), new MartinStrategy()),
     new("SmartRandom", new SmartRandomBoardCreationStrategy(), new SmartRandomStrategy()),
     new("Slavek", new SmartRandomBoardCreationStrategy(), new DeathCrossStrategy()),
+    //new("External", new DefaultBoardCreationStrategy(), new ExternalGameStrategy(65432)),
     //new("Interactive", new InteractiveBoardCreationStrategy(), new InteractiveGameStrategy())
 };
 
@@ -59,4 +61,11 @@ foreach (var participant in
          competitorsScores.OrderBy(x => x.Value))
 {
     Console.WriteLine($"\t-{participant.Key.Name}: {participant.Value} moves");
+}
+
+foreach (Participant participant in participants)
+{
+    if (participant.GameStrategy is ExternalGameStrategy)
+        participant.GameStrategy.Start(new GameSetting(0, 0, new int[] {}));
+            // Start empty = Close socket
 }

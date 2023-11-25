@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BattleShipEngine\BattleShipEngine.csproj" />
+    <ProjectReference Include="..\BattleShipExternalStrategies\BattleShipExternalStrategies.csproj" />
     <ProjectReference Include="..\BattleShipStrategies\BattleShipStrategies.csproj" />
   </ItemGroup>
 
