@@ -29,6 +29,7 @@ public class DeathCrossStrategy : IGameStrategy
         _lastMove = move;
         //if (_deathCross.Contains(move)) _deathCross.Remove(move);
         //if (_defaultPlaces.Contains(move)) _defaultPlaces.Remove(move);
+        //Console.WriteLine($"{move.X}, {move.Y}");
         return move;
     }
 
@@ -47,23 +48,23 @@ public class DeathCrossStrategy : IGameStrategy
                 else
                     _defaultWorks = false;
             }
-            if (_bleeding.from == _bleeding.to || _bleeding.from.X == _bleeding.to.X)
+            if (_bleeding.from == _bleeding.to || _bleeding.from.Y == _bleeding.to.Y)
             {
                 if (_bleeding.from.X > 0 &&
                     _board[_bleeding.from.X - 1, _bleeding.from.Y] == MyTile.Unknown)
                     return _bleeding.from with { X = _bleeding.from.X - 1 };
                 if (_bleeding.to.X < _setting.Width - 1 &&
-                    _board[_bleeding.from.X + 1, _bleeding.from.Y] == MyTile.Unknown)
-                    return _bleeding.from with { X = _bleeding.to.X + 1 };
+                    _board[_bleeding.to.X + 1, _bleeding.to.Y] == MyTile.Unknown)
+                    return _bleeding.to with { X = _bleeding.to.X + 1 };
             }
-            if (_bleeding.from == _bleeding.to || _bleeding.from.Y == _bleeding.to.Y)
+            if (_bleeding.from == _bleeding.to || _bleeding.from.X == _bleeding.to.X)
             {
                 if (_bleeding.from.Y > 0 &&
                     _board[_bleeding.from.X, _bleeding.from.Y - 1] == MyTile.Unknown)
                     return _bleeding.from with { Y = _bleeding.from.Y - 1 };
                 if (_bleeding.to.Y < _setting.Height - 1 &&
-                    _board[_bleeding.from.X, _bleeding.from.Y + 1] == MyTile.Unknown)
-                    return _bleeding.from with { Y = _bleeding.to.Y + 1 };
+                    _board[_bleeding.to.X, _bleeding.to.Y + 1] == MyTile.Unknown)
+                    return _bleeding.to with { Y = _bleeding.to.Y + 1 };
             } 
         }
 
@@ -112,7 +113,7 @@ public class DeathCrossStrategy : IGameStrategy
         {
             if (_board[i, j] != MyTile.Unknown)
                 continue;
-            int newCoef = 0;
+            int newCoef = 1;
             for (int k = 0; k < 4; k++)
                 newCoef += EmptyCount(0, new Int2(i, j), (Direction)k);
             if (newCoef > coef)
@@ -122,18 +123,6 @@ public class DeathCrossStrategy : IGameStrategy
             }
         }
         return best;
-        /*while (true)
-        {
-            Int2 move = new Int2(
-                Random.Shared.Next(_setting.Width),
-                Random.Shared.Next(_setting.Height)
-            );
-            if (_board[move.X, move.Y] == MyTile.Unknown)
-            {
-                return move;
-            }
-        }*/
-        //return new Int2(0, 0);
     }
     
     private int EmptyCount(int depth, Int2 position, Direction direction)
@@ -157,11 +146,12 @@ public class DeathCrossStrategy : IGameStrategy
 
     public void RespondHit()
     {
+        //Console.WriteLine("Hit!");
         if (_hunter)
         {
             if (_lastMove.X < _bleeding.from.X || _lastMove.Y < _bleeding.from.Y)
                 _bleeding.from = _lastMove;
-            else if (_lastMove.X < _bleeding.from.X || _lastMove.Y > _bleeding.from.Y)
+            else if (_lastMove.X > _bleeding.to.X || _lastMove.Y > _bleeding.to.Y)
                 _bleeding.to = _lastMove;
         }
         else
@@ -174,6 +164,7 @@ public class DeathCrossStrategy : IGameStrategy
 
     public void RespondSunk()
     {
+        //Console.WriteLine("SUNK!!!");
         _hunter = false;
         for (int i = 0; i < 4; i++)
             BoatIsDead(_lastMove, (Direction) i);
@@ -183,16 +174,20 @@ public class DeathCrossStrategy : IGameStrategy
     {
         if (direction == Direction.Left || direction == Direction.Right)
         {
-            if (position.Y < _setting.Height - 1)
+            if (position.Y < _setting.Height - 1
+                && _board[position.X, position.Y + 1] == MyTile.Unknown)
                 _board[position.X, position.Y + 1] = MyTile.Water;
-            if (position.Y > 0)
+            if (position.Y > 0
+                && _board[position.X, position.Y - 1] == MyTile.Unknown)
                 _board[position.X, position.Y - 1] = MyTile.Water;
         }
         if (direction == Direction.Up || direction == Direction.Down)
         {
-            if (position.X < _setting.Width - 1)
+            if (position.X < _setting.Width - 1
+                && _board[position.X + 1, position.Y] == MyTile.Unknown)
                 _board[position.X + 1, position.Y] = MyTile.Water;
-            if (position.X > 0)
+            if (position.X > 0
+                && _board[position.X - 1, position.Y] == MyTile.Unknown)
                 _board[position.X - 1, position.Y] = MyTile.Water;
         }
         
@@ -213,6 +208,7 @@ public class DeathCrossStrategy : IGameStrategy
 
     public void RespondMiss()
     {
+        //Console.WriteLine("Miss.");
         _board[_lastMove.X, _lastMove.Y] = MyTile.Water;
         if (_defaultWorks)
             _defaultWorks = false;
