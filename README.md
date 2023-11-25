@@ -3,7 +3,7 @@ This is the BattleShip guessing game engine to compete against other programmers
 
 ## How to use
 
-## How to run
+### How to run
 To compile, .NET 7 is required.
 When complete, run BattleShipAnalytics.
 
