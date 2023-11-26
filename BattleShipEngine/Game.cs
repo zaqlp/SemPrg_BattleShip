@@ -35,7 +35,21 @@ public sealed class Game
         {
             ammOfMoves++;
 
+            if (ammOfMoves >= _setting.Width * _setting.Height * 5)
+                return _setting.Width * _setting.Height * 5;
+
             var move = strategy.GetMove();
+            if (0 > move.X || move.X >= _setting.Width)
+            {
+                Console.WriteLine("Invalid move. Strategy gets maximum moves.");
+                return _setting.Width * _setting.Height * 5;
+            }
+            if (0 > move.Y || move.Y >= _setting.Height)
+            {
+                Console.WriteLine("Invalid move. Strategy gets maximum moves.");
+                return _setting.Width * _setting.Height * 5;
+            }
+
             if (board[move.X, move.Y] == BoardTile.Boat)
             {
                 //Player hit a boat

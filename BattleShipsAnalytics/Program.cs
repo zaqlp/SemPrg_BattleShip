@@ -11,7 +11,7 @@ var participants = new List<Participant>()
     new("MartinStrategy", new DefaultBoardCreationStrategy(), new MartinStrategy()),
     new("SmartRandom", new SmartRandomBoardCreationStrategy(), new SmartRandomStrategy()),
     new("Slavek", new SmartRandomBoardCreationStrategy(), new DeathCrossStrategy()),
-    new("External", new ExternalBoardCreationStrategy(65431), new ExternalGameStrategy(65432)),
+    //new("External", new ExternalBoardCreationStrategy(65431), new ExternalGameStrategy(65432)),
     //new("Interactive", new InteractiveBoardCreationStrategy(), new InteractiveGameStrategy())
 };
 
