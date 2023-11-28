@@ -7,6 +7,7 @@ var participants = new List<Participant>()
 {
     new("Default", new DefaultBoardCreationStrategy(), new DefaultGameStrategy()),
     new("SmartRandom", new DefaultBoardCreationStrategy(), new SmartRandomStrategy()),
+    new("Zbynek", new DefaultBoardCreationStrategy(), new Zbynek1()),
     //new("Interactive", new InteractiveBoardCreationStrategy(), new InteractiveGameStrategy())
 };
 
