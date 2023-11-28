@@ -1,60 +1,40 @@
-﻿using BattleShipEngine;
+using BattleShipEngine;
+using BattleShipsAnalytics.Tournaments;
+using BattleShipExternalStrategies;
 using BattleShipStrategies.Default;
+using BattleShipStrategies.MartinF;
+using BattleShipStrategies.MartinF.Unethical;
 using BattleShipStrategies.Slavek;
 
 
 var participants = new List<Participant>()
 {
-    new("Default", new DefaultBoardCreationStrategy(), new DefaultGameStrategy()),
-    new("SmartRandom", new DefaultBoardCreationStrategy(), new SmartRandomStrategy()),
-    new("Zbynek", new DefaultBoardCreationStrategy(), new Zbynek1()),
+    new("MartinF", new SmartRandomBoardCreationStrategy(), new MartinStrategy()),
+    //new("Legit100%NoCap", new SmartRandomBoardCreationStrategy(), new MartinParasiticStrategy()),
+    new("SmartRandom", new SmartRandomBoardCreationStrategy(), new SmartRandomStrategy()),
+    new("Slavek", new SuperSmartRandomBoardCreationStrategy(), new DeathCrossStrategy()),
+    //new("External", new ExternalBoardCreationStrategy(65431), new ExternalGameStrategy(65432)),
     //new("Interactive", new InteractiveBoardCreationStrategy(), new InteractiveGameStrategy())
 };
 
-//Setup scores
-var competitorsScores = new Dictionary<Participant, int>(); // Key: Participant, Value: How many moves it took to sink all boats
-foreach (var participant in participants)
-    competitorsScores.Add(participant, 0);
-
-//Play games
 var settings = GameSetting.Default;
 
-foreach (var participant in participants)
+//var tournament = new SingleShotTournament(participants);
+//var tournament = new MultiGameTournament(participants, 1000);
+var tournament = new MultiThreadedTournament(participants, 1000); //Might be faster, but not sure (lol)
+
+tournament.PlayAndPrint(settings);
+
+// Check for external strategies and say them it is the end.
+foreach (Participant participant in participants)
 {
-    Game game;
-    try
-    {
-        game = new Game(participant.BoardCreationStrategy, settings);
-    }
-    catch (Exception e)
-    {
-        Console.WriteLine(e);
-        Console.WriteLine($"The {participant.Name}'s board was not valid. Skipping.");
-        continue;
-    }
+    if (participant.GameStrategy is ExternalGameStrategy)
+        participant.GameStrategy.Start(new GameSetting(
+            0, 0, new int[] {}));
     
-    Console.WriteLine($"The Board of {participant.Name} was cleared by ");
-
-    //Calculate how others did against this board
-    foreach (var competitor in participants)
-    {
-        if (competitor == participant)
-            continue; //The player shouldn't play against himself
-
-        //Simulate game on this board
-        var ammOfMoves = game.SimulateGame(competitor.GameStrategy);
-
-        competitorsScores[competitor] += ammOfMoves;
-        
-        //Some logging for this board
-        Console.WriteLine($"\t-{competitor.Name} in {ammOfMoves} moves");
-    }
-}
-
-//Final results
-Console.WriteLine("Total amount of moves needed to solve all the opponents' boards:");
-foreach (var participant in
-         competitorsScores.OrderBy(x => x.Value))
-{
-    Console.WriteLine($"\t-{participant.Key.Name}: {participant.Value} moves");
+    if (participant.BoardCreationStrategy is ExternalBoardCreationStrategy)
+        participant.BoardCreationStrategy.GetBoatPositions(
+            new GameSetting(0, 0, new int[] {}));
+    
+            // Start empty = Close socket
 }

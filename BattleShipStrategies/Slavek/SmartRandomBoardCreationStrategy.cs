@@ -1,143 +1,106 @@
-﻿using System.Runtime.CompilerServices;
+using BattleShipEngine;
 
-namespace BattleShipEngine;
+namespace BattleShipStrategies.Slavek;
 
-/// <summary>
-/// The game of battleships
-/// A Game exists for a board and multiple strategies can simulate it.
-/// </summary>
-public sealed class Game
+public class SmartRandomBoardCreationStrategy : IBoardCreationStrategy
 {
-    private readonly BoardTile[,] _boardTemplate;
-    private readonly GameSetting _setting;
-
-    /// <summary>
-    /// Creates a new game with the given positions. They are used only as a template and one Game can simulate multiple games.
-    /// </summary>
-    public Game(IBoardCreationStrategy boardCreationStrategy, GameSetting setting)
+    public Int2[] GetBoatPositions(GameSetting setting)
     {
-        var boatPositions = boardCreationStrategy.GetBoatPositions(setting);
-        this._boardTemplate = GenerateBoardFromBoats(boatPositions, setting);
-        this._setting = setting;
-
-        //Draw the board for debug purposes
-        //DrawBoard();
-
-        void DrawBoard()
-        {
-            for (int y = 0; y < setting.Height; y++)
-            {
-                for (int x = 0; x < setting.Width; x++)
-                {
-                    Console.Write(_boardTemplate[x, y] switch
-                    {
-                        BoardTile.Water => ". ",
-                        BoardTile.Boat => "B ",
-                        _ => throw new ArgumentOutOfRangeException()
-                    });
-                }
-
-                Console.WriteLine();
-            }
-        }
-    }
-
-    /// <summary>
-    /// Plays the game with on a board with a strategy. Calculates how many moves the strategy took to sink all boats.
-    /// </summary>
-    /// <returns> How many moves the strategy took to sink all boats. </returns>
-    public int SimulateGame(IGameStrategy strategy)
-    {
-        strategy.Start(_setting);
-        //Copy the board, so this can be reused
-        var board = (BoardTile[,])this._boardTemplate.Clone();
-
-        //Todo: optimize with span
-        var ammOfMoves = 0;
         while (true)
         {
-            ammOfMoves++;
-
-            if (ammOfMoves >= _setting.Width * _setting.Height * 5)
-                return _setting.Width * _setting.Height * 5;
-
-            var move = strategy.GetMove();
-            if (0 > move.X || move.X >= _setting.Width)
+            List<Int2> boats = new List<Int2>();
+            for (int shipLength = setting.BoatCount.Length; shipLength > 0; shipLength--)
             {
-                Console.WriteLine("Invalid move. Strategy gets maximum moves.");
-                return _setting.Width * _setting.Height * 5;
-            }
-            if (0 > move.Y || move.Y >= _setting.Height)
-            {
-                Console.WriteLine("Invalid move. Strategy gets maximum moves.");
-                return _setting.Width * _setting.Height * 5;
-            }
-
-            if (board[move.X, move.Y] == BoardTile.Boat)
-            {
-                //Player hit a boat
-                board[move.X, move.Y] = BoardTile.DamagedBoat;
-                strategy.RespondHit();
-
-                //Check if the boat was sunk (all tiles are hit)
-                if (BoatIsDead(board, move, Direction.All, _setting))
+                int timesTried = 0;
+                for (int shipsPlaced = 0; shipsPlaced < setting.BoatCount[shipLength - 1];
+                     timesTried++)
                 {
-                    strategy.RespondSunk();
+                    bool valid = true;
+                    Int2 boatStart = new Int2(
+                        Random.Shared.Next(setting.Width),
+                        Random.Shared.Next(setting.Height)
+                    );
+                    int direction = Random.Shared.Next(4);
+                    for (int shipPart = 0; shipPart < shipLength; shipPart++)
+                    {
+                        Int2 nextSquare;
+                        switch (direction)
+                        {
+                            case 0:
+                                nextSquare = boatStart with { X = boatStart.X - shipPart };
+                                break;
+                            case 1:
+                                nextSquare = boatStart with { Y = boatStart.Y - shipPart };
+                                break;
+                            case 2:
+                                nextSquare = boatStart with { X = boatStart.X + shipPart };
+                                break;
+                            case 3:
+                                nextSquare = boatStart with { Y = boatStart.Y + shipPart };
+                                break;
+                            default:
+                                nextSquare = boatStart;
+                                break;
+                        }
+                        if (nextSquare.X < 0 || nextSquare.X >= setting.Width ||
+                            nextSquare.Y < 0 || nextSquare.Y >= setting.Height)
+                        {
+                            valid = false;
+                            break;
+                        }
+                        for (int x = -1; x < 2; x++)
+                            for (int y = -1; y < 2; y++)
+                                if (boats.Contains(
+                                        new Int2(nextSquare.X + x, nextSquare.Y + y)))
+                                {
+                                    valid = false;
+                                    goto CheckValidity;
+                                }
+                    }
+                    CheckValidity:
+                    if (valid)
+                    {
+                        for (int shipPart = 0; shipPart < shipLength; shipPart++)
+                        {
+                            Int2 nextSquare;
+                            switch (direction){
+                                case 0:
+                                    nextSquare = boatStart with { X = boatStart.X - shipPart };
+                                    break;
+                                case 1:
+                                    nextSquare = boatStart with { Y = boatStart.Y - shipPart };
+                                    break;
+                                case 2:
+                                    nextSquare = boatStart with { X = boatStart.X + shipPart };
+                                    break;
+                                case 3:
+                                    nextSquare = boatStart with { Y = boatStart.Y + shipPart };
+                                    break;
+                                default:
+                                    nextSquare = boatStart;
+                                    break;
+                            }
+                            boats.Add(nextSquare);
+                        }
+                        shipsPlaced++;
+                        timesTried = 0;
+                    }
+                    else if (timesTried > 1000)
+                        goto NotUsableBoard;
                 }
             }
-            else
+
+            BoardTile[,] board = new BoardTile[setting.Width, setting.Height];
+            foreach (var boat in boats)
             {
-                strategy.RespondMiss();
+                board[boat.X, boat.Y] = BoardTile.Boat;
             }
-
-            if (IsGameOver(board))
-                break;
+            if (ValidateBoard(board, setting))
+                return boats.ToArray();
+            NotUsableBoard: continue;
         }
-
-        return ammOfMoves;
     }
-
-    private static bool BoatIsDead(BoardTile[,] board, Int2 position,
-        Direction direction, GameSetting setting)
-    {
-        if (direction == Direction.All)
-        {
-            bool result = true;
-            for (int i = 0; i < 4; i++)
-                result = result && BoatIsDead(board, position, (Direction) i, setting);
-            return result;
-        }
-        if (board[position.X, position.Y] == BoardTile.Boat)
-            return false;
-        if (board[position.X, position.Y] == BoardTile.Water)
-            return true;
-        if ((direction == Direction.Left && position.X != 0 && !BoatIsDead(
-                board, position with {X = position.X - 1}, direction, setting)) ||
-            (direction == Direction.Up && position.Y != 0 && !BoatIsDead(
-                board, position with {Y = position.Y - 1}, direction, setting)) ||
-            (direction == Direction.Right && position.X != setting.Width - 1 && !BoatIsDead(
-                board, position with {X = position.X + 1}, direction, setting)) ||
-            (direction == Direction.Down && position.Y != setting.Height - 1 && !BoatIsDead(
-                board, position with {Y = position.Y + 1}, direction, setting)))
-            return false;
-        return true;
-    }
-
-    private static BoardTile[,] GenerateBoardFromBoats(Int2[] boatPositions, GameSetting setting)
-    {
-        var board = new BoardTile[setting.Width, setting.Height];
-        foreach (var boatPosition in boatPositions)
-        {
-            board[boatPosition.X, boatPosition.Y] = BoardTile.Boat;
-        }
-
-        //Validate that the board is correct and throw if not
-        if (!ValidateBoard(board, setting))
-            throw new Exception("The board is not valid!");
-
-        return board;
-    }
-
+    
 #region Board Validation
 
     /// <summary>
@@ -270,13 +233,4 @@ public sealed class Game
 
 #endregion
 
-    private static bool IsGameOver(BoardTile[,] board)
-    {
-        foreach (var tile in board)
-        {
-            if (tile == BoardTile.Boat)
-                return false;
-        }
-        return true;
-    }
 }
